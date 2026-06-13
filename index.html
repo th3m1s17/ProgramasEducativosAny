@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aritmética Interactiva - Suma y Resta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- PANTALLA PRINCIPAL -->
+        <div id="mainScreen" class="screen active">
+            <div class="container">
+                <h1>🎓 Aritmética Interactiva</h1>
+                <p class="subtitle">Elige la dificultad para comenzar</p>
+                
+                <div class="menu-buttons">
+                    <button class="btn btn-primary" onclick="selectDifficulty(1)">
+                        <span class="emoji">1️⃣</span>
+                        <span class="text">1 Cifra</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="selectDifficulty(2)">
+                        <span class="emoji">2️⃣</span>
+                        <span class="text">2 Cifras</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="selectDifficulty(3)">
+                        <span class="emoji">3️⃣</span>
+                        <span class="text">3 Cifras</span>
+                    </button>
+                </div>
+
+                <div class="info-section">
+                    <h3>📊 Estadísticas</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-label">Total Intentos</span>
+                            <span class="stat-value" id="totalAttempts">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Respuestas Correctas</span>
+                            <span class="stat-value" id="correctCount">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Porcentaje</span>
+                            <span class="stat-value" id="percentage">0%</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetStats()">🔄 Reiniciar Estadísticas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE SELECCIÓN DE OPERACIÓN -->
+        <div id="operationScreen" class="screen">
+            <div class="container">
+                <button class="btn-back" onclick="backToMain">← Volver</button>
+                <h2 id="difficultyTitle"></h2>
+                <p class="subtitle">Elige la operación</p>
+                
+                <div class="operation-buttons">
+                    <button class="btn btn-success" onclick="startProblem('suma')">
+                        <span class="emoji">➕</span>
+                        <span class="text">Suma</span>
+                    </button>
+                    <button class="btn btn-danger" onclick="startProblem('resta')">
+                        <span class="emoji">➖</span>
+                        <span class="text">Resta</span>
+                    </button>
+                    <button class="btn btn-warning" onclick="startProblem('mixta')">
+                        <span class="emoji">🎲</span>
+                        <span class="text">Modo Mixto</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE PROBLEMA -->
+        <div id="problemScreen" class="screen">
+            <div class="container">
+                <button class="btn-back" onclick="backToOperation()">← Volver</button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="problem-card">
+                    <h3 id="operationTitle"></h3>
+                    
+                    <!-- Problema -->
+                    <div class="problem">
+                        <div class="operation-display">
+                            <span id="num1" class="number"></span>
+                            <span id="operator" class="operator"></span>
+                            <span id="num2" class="number"></span>
+                            <span class="equals">=</span>
+                            <span id="answer" class="number">?</span>
+                        </div>
+                    </div>
+
+                    <!-- Explicación paso a paso -->
+                    <div class="step-by-step">
+                        <button class="btn-toggle" onclick="toggleSteps()">📋 Mostrar Pasos</button>
+                        <div id="steps" class="steps-container" style="display: none;"></div>
+                    </div>
+
+                    <!-- Área de respuesta -->
+                    <div class="answer-area">
+                        <label for="userAnswer">Tu respuesta:</label>
+                        <div class="input-group">
+                            <input 
+                                type="number" 
+                                id="userAnswer" 
+                                placeholder="Ingresa tu respuesta"
+                                onkeypress="handleKeyPress(event)"
+                            >
+                            <button class="btn-clear" onclick="clearAnswer()">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="action-buttons">
+                        <button class="btn btn-submit" onclick="checkAnswer()">✓ Verificar</button>
+                        <button class="btn btn-hint" onclick="showHint()">💡 Pista</button>
+                    </div>
+
+                    <!-- Pista -->
+                    <div id="hintBox" class="hint-box" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
