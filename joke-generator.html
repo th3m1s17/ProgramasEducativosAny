@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Chistes Aleatorios 😂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .emoji {
+            font-size: 3em;
+            animation: bounce 0.6s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .joke-container {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(253, 203, 110, 0.3);
+            border: 3px solid #fdcb6e;
+        }
+
+        .joke-text {
+            font-size: 1.3em;
+            color: #2d3436;
+            font-weight: bold;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .loading {
+            display: none;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(-1px);
+        }
+
+        .category-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn-category {
+            padding: 10px 15px;
+            font-size: 0.9em;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3436;
+            border: 2px solid #667eea;
+        }
+
+        .btn-category:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .btn-category.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #2d3436;
+            font-size: 0.95em;
+        }
+
+        .joke-counter {
+            font-size: 0.9em;
+            color: #636e72;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 1.8em;
+            }
+
+            .emoji {
+                font-size: 2em;
+            }
+
+            .joke-text {
+                font-size: 1.1em;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+
+            .category-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .error-message {
+            background: #ffe8e8;
+            border: 2px solid #f5576c;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border: 2px solid #27ae60;
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">
+                <span class="emoji">😂</span>
+                <br>Generador de Chistes
+            </div>
+        </div>
+
+        <div class="info-box">
+            ¡Presiona el botón para obtener un chiste aleatorio! Puedes elegir una categoría específica o dejar que sea sorpresa.
+        </div>
+
+        <div class="category-buttons">
+            <button class="btn-category active" data-category="random">🎲 Aleatorio</button>
+            <button class="btn-category" data-category="programming">💻 Programación</button>
+            <button class="btn-category" data-category="knock-knock">🚪 Toc-Toc</button>
+            <button class="btn-category" data-category="general">🎭 General</button>
+        </div>
+
+        <div class="joke-container">
+            <div class="loading" id="loading">
+                <span class="spinner">⏳</span>
+                <p>Buscando un chiste divertido...</p>
+            </div>
+            <p class="joke-text" id="jokeText">¡Presiona "Obtener Chiste" para empezar!</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="button-container">
+            <button class="btn-primary" id="getJokeBtn">🎯 Obtener Chiste</button>
+            <button class="btn-secondary" id="copyBtn">📋 Copiar</button>
+        </div>
+
+        <div class="joke-counter">
+            Chistes obtenidos: <span id="counter">0</span>
+        </div>
+    </div>
+
+    <script>
+        let currentJoke = '';
+        let jokeCount = 0;
+        let selectedCategory = 'random';
+
+        const jokeText = document.getElementById('jokeText');
+        const loading = document.getElementById('loading');
+        const getJokeBtn = document.getElementById('getJokeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const counter = document.getElementById('counter');
+        const categoryBtns = document.querySelectorAll('.btn-category');
+
+        // Categorías de chistes disponibles
+        const jokeSources = {
+            random: 'https://official-joke-api.appspot.com/random_joke',
+            programming: 'https://official-joke-api.appspot.com/jokes/programming/random',
+            'knock-knock': 'https://official-joke-api.appspot.com/jokes/knock-knock/random',
+            general: 'https://official-joke-api.appspot.com/jokes/general/random'
+        };
+
+        // Cambiar categoría
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedCategory = btn.dataset.category;
+            });
+        });
+
+        // Obtener chiste
+        getJokeBtn.addEventListener('click', fetchJoke);
+
+        // Copiar chiste
+        copyBtn.addEventListener('click', () => {
+            if (currentJoke) {
+                navigator.clipboard.writeText(currentJoke).then(() => {
+                    showSuccess('¡Chiste copiado al portapapeles! 📋');
+                });
+            }
+        });
+
+        async function fetchJoke() {
+            try {
+                // Mostrar loading
+                loading.style.display = 'block';
+                jokeText.style.display = 'none';
+                errorMessage.style.display = 'none';
+                getJokeBtn.disabled = true;
+
+                const apiUrl = jokeSources[selectedCategory] || jokeSources.random;
+
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error('Error al obtener el chiste');
+                }
+
+                const data = await response.json();
+
+                // Construir el chiste
+                if (data.setup && data.punchline) {
+                    currentJoke = `${data.setup}\n\n${data.punchline}`;
+                } else if (data.joke) {
+                    currentJoke = data.joke;
+                } else {
+                    currentJoke = 'Chiste no disponible';
+                }
+
+                // Mostrar el chiste
+                jokeText.textContent = currentJoke;
+                loading.style.display = 'none';
+                jokeText.style.display = 'block';
+
+                // Incrementar contador
+                jokeCount++;
+                counter.textContent = jokeCount;
+
+                // Reproducir sonido de éxito (opcional)
+                playSuccessSound();
+
+                // Animación
+                jokeText.style.animation = 'none';
+                setTimeout(() => {
+                    jokeText.style.animation = 'bounce 0.6s ease-in-out';
+                }, 10);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('¡Oops! No pudimos obtener el chiste. Intenta nuevamente.');
+                loading.style.display = 'none';
+            } finally {
+                getJokeBtn.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 2000);
+        }
+
+        // Reproducir sonido de éxito
+        function playSuccessSound() {
+            // Crear un sonido simple usando Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Cargar un chiste al iniciar
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                fetchJoke();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
