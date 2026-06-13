@@ -22,11 +22,11 @@
                         <span class="emoji">1️⃣</span>
                         <span class="text">1 Cifra</span>
                     </button>
-                    <button class="btn btn-primary" onclick="selectDifficulty(2)">
+                    <button class="btn btn-success" onclick="selectDifficulty(2)">
                         <span class="emoji">2️⃣</span>
                         <span class="text">2 Cifras</span>
                     </button>
-                    <button class="btn btn-primary" onclick="selectDifficulty(3)">
+                    <button class="btn btn-danger" onclick="selectDifficulty(3)">
                         <span class="emoji">3️⃣</span>
                         <span class="text">3 Cifras</span>
                     </button>
@@ -113,14 +113,24 @@
                 <div class="problem-card">
                     <h3 id="operationTitle"></h3>
                     
-                    <!-- Problema -->
-                    <div class="problem">
-                        <div class="operation-display">
-                            <span id="num1" class="number"></span>
-                            <span id="operator" class="operator"></span>
-                            <span id="num2" class="number"></span>
-                            <span class="equals">=</span>
-                            <span id="answer" class="number">?</span>
+                    <!-- Problema - VISTA VERTICAL -->
+                    <div class="operation-display">
+                        <div class="vertical-operation">
+                            <!-- Primera fila: primer número -->
+                            <div class="math-row">
+                                <span class="math-number" id="num1"></span>
+                            </div>
+                            <!-- Segunda fila: operador + segundo número -->
+                            <div class="math-row">
+                                <span class="math-operator" id="operator"></span>
+                                <span class="math-number" id="num2"></span>
+                            </div>
+                            <!-- Línea divisoria -->
+                            <div class="math-line"></div>
+                            <!-- Resultado -->
+                            <div class="math-row">
+                                <span class="math-result" id="answer">?</span>
+                            </div>
                         </div>
                     </div>
 
