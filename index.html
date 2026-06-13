@@ -11,7 +11,10 @@
         <!-- PANTALLA PRINCIPAL -->
         <div id="mainScreen" class="screen active">
             <div class="container">
-                <h1>🎓 Aritmética Interactiva</h1>
+                <div class="header">
+                    <h1>🎓 Aritmética Interactiva</h1>
+                    <button class="btn-achievements" onclick="showAchievements()">🏆 Logros</button>
+                </div>
                 <p class="subtitle">Elige la dificultad para comenzar</p>
                 
                 <div class="menu-buttons">
@@ -30,7 +33,7 @@
                 </div>
 
                 <div class="info-section">
-                    <h3>📊 Estadísticas</h3>
+                    <h3>📊 Estadísticas Generales</h3>
                     <div class="stats-grid">
                         <div class="stat-box">
                             <span class="stat-label">Total Intentos</span>
@@ -44,16 +47,41 @@
                             <span class="stat-label">Porcentaje</span>
                             <span class="stat-value" id="percentage">0%</span>
                         </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Insignias</span>
+                            <span class="stat-value" id="badgeCount">0</span>
+                        </div>
                     </div>
                     <button class="btn btn-secondary" onclick="resetStats()">🔄 Reiniciar Estadísticas</button>
                 </div>
+
+                <!-- Insignias desbloqueadas en la pantalla principal -->
+                <div class="badges-preview" id="badgesPreview">
+                    <h3>🏅 Insignias Desbloqueadas</h3>
+                    <div class="badges-container" id="badgesPreviewContainer"></div>
+                </div>
+
+                <!-- Créditos del autor -->
+                <div class="author-section">
+                    <p>Creado por <strong>@th3m1s17</strong> 💻</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE LOGROS COMPLETA -->
+        <div id="achievementsScreen" class="screen">
+            <div class="container">
+                <button class="btn-back" onclick="backToMain()">← Volver</button>
+                <h2>🏆 Panel de Logros</h2>
+                
+                <div class="achievements-grid" id="achievementsGrid"></div>
             </div>
         </div>
 
         <!-- PANTALLA DE SELECCIÓN DE OPERACIÓN -->
         <div id="operationScreen" class="screen">
             <div class="container">
-                <button class="btn-back" onclick="backToMain">← Volver</button>
+                <button class="btn-back" onclick="backToMain()">← Volver</button>
                 <h2 id="difficultyTitle"></h2>
                 <p class="subtitle">Elige la operación</p>
                 
@@ -126,8 +154,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL DE LOGRO DESBLOQUEADO -->
+        <div id="achievementModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🎉 ¡Logro Desbloqueado!</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="achievement-popup">
+                        <div class="achievement-icon" id="achievementIcon"></div>
+                        <h3 id="achievementName"></h3>
+                        <p id="achievementDescription"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeAchievementModal()">Continuar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <script src="achievements.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
