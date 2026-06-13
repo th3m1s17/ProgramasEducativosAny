@@ -9,10 +9,19 @@ let problemCount = 0;
 let stepsVisible = false;
 let hintShown = false;
 
-// Estadísticas
+// Estadísticas extendidas
 let stats = {
     totalAttempts: 0,
-    correctAnswers: 0
+    correctAnswers: 0,
+    currentStreak: 0,
+    difficulty1: 0,
+    difficulty2: 0,
+    difficulty3: 0,
+    additions: 0,
+    subtractions: 0,
+    hintsUsed: 0,
+    hasComeback: false,
+    lastWasCorrect: false
 };
 
 // Cargar estadísticas del localStorage
@@ -21,6 +30,8 @@ function loadStats() {
     if (savedStats) {
         stats = JSON.parse(savedStats);
         updateStatsDisplay();
+        updateBadgeCount();
+        displayBadgesPreview();
     }
 }
 
@@ -28,6 +39,8 @@ function loadStats() {
 function saveStats() {
     localStorage.setItem('arithmeticStats', JSON.stringify(stats));
     updateStatsDisplay();
+    updateBadgeCount();
+    displayBadgesPreview();
 }
 
 // Actualizar display de estadísticas
@@ -44,8 +57,21 @@ function updateStatsDisplay() {
 
 // Reiniciar estadísticas
 function resetStats() {
-    if (confirm('¿Estás seguro de que deseas reiniciar las estadísticas?')) {
-        stats = { totalAttempts: 0, correctAnswers: 0 };
+    if (confirm('¿Estás seguro de que deseas reiniciar las estadísticas y logros?')) {
+        stats = {
+            totalAttempts: 0,
+            correctAnswers: 0,
+            currentStreak: 0,
+            difficulty1: 0,
+            difficulty2: 0,
+            difficulty3: 0,
+            additions: 0,
+            subtractions: 0,
+            hintsUsed: 0,
+            hasComeback: false,
+            lastWasCorrect: false
+        };
+        achievementManager.resetAchievements();
         saveStats();
     }
 }
@@ -53,8 +79,9 @@ function resetStats() {
 // Obtener elementos del DOM
 const screens = {
     main: document.getElementById('mainScreen'),
-    operation: document.getElementById('operationScreen'),
-    problem: document.getElementById('problemScreen')
+    operations: document.getElementById('operationScreen'),
+    problem: document.getElementById('problemScreen'),
+    achievements: document.getElementById('achievementsScreen')
 };
 
 // ========== NAVEGACIÓN ==========
@@ -62,7 +89,7 @@ const screens = {
 function selectDifficulty(difficulty) {
     currentDifficulty = difficulty;
     updateDifficultyTitle();
-    showScreen('operation');
+    showScreen('operations');
     problemCount = 0;
     hintShown = false;
 }
@@ -80,21 +107,28 @@ function backToOperation() {
     stepsVisible = false;
     hintShown = false;
     document.getElementById('userAnswer').value = '';
-    showScreen('operation');
+    showScreen('operations');
 }
 
 function showScreen(screenName) {
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
-    screens[screenName].classList.add('active');
+    if (screens[screenName]) {
+        screens[screenName].classList.add('active');
+    }
 }
 
 function updateDifficultyTitle() {
     const titles = {
         1: '✏️ Problemas de 1 Cifra',
-        2: '📓 Problemas de 2 Cifras',
-        3: '🏫 Problemas de 3 Cifras'
+        2: '📊 Problemas de 2 Cifras',
+        3: '🎯 Problemas de 3 Cifras'
     };
     document.getElementById('difficultyTitle').textContent = titles[currentDifficulty];
+}
+
+function showAchievements() {
+    displayAchievementsGrid();
+    showScreen('achievements');
 }
 
 // ========== GENERACIÓN DE NÚMEROS ==========
@@ -205,10 +239,8 @@ function displaySteps() {
 function displaySumaSteps() {
     const stepsContainer = document.getElementById('steps');
 
-    // Paso 1: Presentación
     addStep(`Sumamos: <strong>${num1}</strong> + <strong>${num2}</strong>`);
 
-    // Paso 2: Desglose por dígitos
     if (currentDifficulty === 1) {
         addStep(`Como ambos son de 1 cifra: <strong>${num1} + ${num2} = ${correctAnswer}</strong>`);
     } else if (currentDifficulty === 2) {
@@ -240,10 +272,8 @@ function displaySumaSteps() {
 function displayRestaSteps() {
     const stepsContainer = document.getElementById('steps');
 
-    // Paso 1: Presentación
     addStep(`Restamos: <strong>${num1}</strong> − <strong>${num2}</strong>`);
 
-    // Paso 2: Desglose por dígitos
     if (currentDifficulty === 1) {
         addStep(`Como ambos son de 1 cifra: <strong>${num1} − ${num2} = ${correctAnswer}</strong>`);
     } else if (currentDifficulty === 2) {
@@ -286,6 +316,7 @@ function showHint() {
     if (hintShown) return;
     
     hintShown = true;
+    stats.hintsUsed++;
     const hintBox = document.getElementById('hintBox');
     let hintText = '';
     
@@ -328,15 +359,43 @@ function checkAnswer() {
 
     userAnswered = true;
     stats.totalAttempts++;
+    
+    // Actualizar estadísticas por dificultad
+    stats['difficulty' + currentDifficulty]++;
+    
+    // Actualizar estadísticas por operación
+    if (currentOperation === 'suma') {
+        stats.additions++;
+    } else {
+        stats.subtractions++;
+    }
 
     if (userAnswer === correctAnswer) {
         stats.correctAnswers++;
+        stats.currentStreak++;
+        stats.lastWasCorrect = true;
         showCorrectMessage();
     } else {
+        // Verificar logro de regreso triunfal
+        if (stats.lastWasCorrect) {
+            stats.hasComeback = true;
+        }
+        stats.currentStreak = 0;
+        stats.lastWasCorrect = false;
         showIncorrectMessage();
     }
     
     saveStats();
+    
+    // Verificar logros
+    const newAchievements = achievementManager.checkAchievements(stats);
+    if (newAchievements.length > 0) {
+        newAchievements.forEach((achievement, index) => {
+            setTimeout(() => {
+                displayAchievementNotification(achievement);
+            }, index * 1500);
+        });
+    }
 }
 
 function showCorrectMessage() {
@@ -348,7 +407,6 @@ function showCorrectMessage() {
     document.getElementById('answer').style.color = '#28a745';
     document.getElementById('answer').style.fontWeight = 'bold';
 
-    // Mostrar mensaje
     const problemCard = document.querySelector('.problem-card');
     const existingMessage = problemCard.querySelector('.result-message');
     if (existingMessage) existingMessage.remove();
@@ -365,7 +423,6 @@ function showIncorrectMessage() {
     answerInput.style.borderColor = '#f5c6cb';
     answerInput.style.borderWidth = '3px';
 
-    // Mostrar mensaje
     const problemCard = document.querySelector('.problem-card');
     const existingMessage = problemCard.querySelector('.result-message');
     if (existingMessage) existingMessage.remove();
@@ -379,55 +436,51 @@ function showIncorrectMessage() {
 // ========== SONIDOS ==========
 
 function playCorrectSound() {
-    // Crear sonido de éxito de forma programática
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioContext.currentTime;
+        const notes = [262, 330, 392];
+        const duration = 0.3;
 
-    // Notas: DO - MI - SOL (notas alegres)
-    const notes = [262, 330, 392]; // Hz
-    const duration = 0.3;
-
-    notes.forEach((frequency, index) => {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-
-        osc.frequency.value = frequency;
-        osc.type = 'sine';
-
-        gain.gain.setValueAtTime(0.3, now + index * duration);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + index * duration + duration);
-
-        osc.start(now + index * duration);
-        osc.stop(now + index * duration + duration);
-    });
+        notes.forEach((frequency, index) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = frequency;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, now + index * duration);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + index * duration + duration);
+            osc.start(now + index * duration);
+            osc.stop(now + index * duration + duration);
+        });
+    } catch (e) {
+        console.log('Audio API no disponible');
+    }
 }
 
 function playIncorrectSound() {
-    // Crear sonido de error de forma programática
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioContext.currentTime;
+        const notes = [392, 147];
+        const duration = 0.2;
 
-    // Notas bajas: SOL - RE (notas tristes)
-    const notes = [392, 147]; // Hz
-    const duration = 0.2;
-
-    notes.forEach((frequency, index) => {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-
-        osc.frequency.value = frequency;
-        osc.type = 'sine';
-
-        gain.gain.setValueAtTime(0.3, now + index * duration);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + index * duration + duration);
-
-        osc.start(now + index * duration);
-        osc.stop(now + index * duration + duration);
-    });
+        notes.forEach((frequency, index) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = frequency;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, now + index * duration);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + index * duration + duration);
+            osc.start(now + index * duration);
+            osc.stop(now + index * duration + duration);
+        });
+    } catch (e) {
+        console.log('Audio API no disponible');
+    }
 }
 
 // ========== SIGUIENTE PROBLEMA ==========
@@ -465,4 +518,6 @@ function handleKeyPress(event) {
 
 window.addEventListener('DOMContentLoaded', () => {
     loadStats();
+    updateBadgeCount();
+    displayBadgesPreview();
 });
